@@ -40,11 +40,14 @@ defmodule HackerNewsAggregatorTest do
   end
 
   test "Get stories by pagination" do
-    pages = [{1,10}, {2, 10}, {3, 10}, {4, 10}, {5, 10}, {0,0}, {6, 0}, {7, 0}]
-    Enum.each(pages,
+    pages = [{1, 10}, {2, 10}, {3, 10}, {4, 10}, {5, 10}, {0, 0}, {6, 0}, {7, 0}]
+
+    Enum.each(
+      pages,
       fn {page, stories_size_expected} ->
         stories = StoryClient.get_stories(page)
         assert length(stories) == stories_size_expected
-      end)
+      end
+    )
   end
 end

@@ -48,9 +48,9 @@ defmodule HackerNewsAggregator.StoryClient do
   def handle_call({:get_stories, page}, _from, state) do
     index =
       case page do
-        page when page in 2..5 -> (page*10)-10
-          1 -> 0
-          _other -> 50
+        page when page in 2..5 -> page * 10 - 10
+        1 -> 0
+        _other -> 50
       end
 
     stories_chunk =
@@ -67,5 +67,4 @@ defmodule HackerNewsAggregator.StoryClient do
     state_updated = %{state | ids: ids, stories: stories}
     {:noreply, state_updated}
   end
-
 end

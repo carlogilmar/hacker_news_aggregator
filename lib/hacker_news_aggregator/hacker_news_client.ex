@@ -22,7 +22,7 @@ defmodule HackerNewsAggregator.HackerNewsClient do
     Story.new(story_detail)
   end
 
-  @spec get_stories() :: list()
+  @spec get_stories() :: %{ids: list(), stories: map()}
   def get_stories do
     ids = get_top_50_ids()
 

@@ -27,6 +27,11 @@ defmodule HackerNewsAggregator.StoryClient do
     GenServer.cast(__MODULE__, {:fetch_stories})
   end
 
+  @spec get_stories(integer()) :: list()
+  def get_stories(page) when is_integer(page) do
+    GenServer.call(__MODULE__, {:get_stories, page})
+  end
+
   @impl true
   def handle_call({:get_story, story_id}, _from, state) do
     story = state.stories[story_id]
@@ -40,9 +45,27 @@ defmodule HackerNewsAggregator.StoryClient do
   end
 
   @impl true
+  def handle_call({:get_stories, page}, _from, state) do
+    index =
+      case page do
+        page when page in 2..5 -> (page*10)-10
+          1 -> 0
+          _other -> 50
+      end
+
+    stories_chunk =
+      state.ids
+      |> Enum.slice(index, 10)
+      |> Enum.into([], fn id -> state.stories["#{id}"] end)
+
+    {:reply, stories_chunk, state}
+  end
+
+  @impl true
   def handle_cast({:fetch_stories}, state) do
     %{ids: ids, stories: stories} = HackerNewsClient.get_stories()
     state_updated = %{state | ids: ids, stories: stories}
     {:noreply, state_updated}
   end
+
 end

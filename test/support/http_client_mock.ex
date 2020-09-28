@@ -6,18 +6,21 @@ defmodule HttpClientMock do
   def get(url) do
     case url do
       "https://hacker-news.firebaseio.com/v0/topstories.json" ->
-        {:ok, Enum.to_list(1..100)}
+        fake_ids = Enum.into(1..50, [], fn x -> 24_591_952 + x end)
+        {:ok, fake_ids}
 
-      _story_detail_endpoint ->
-        {:ok, get_story_detail()}
+      story_url_detail ->
+        <<url_path::8*43, story_id::binary>> = story_url_detail
+        [id, _] = String.split(story_id, ".json")
+        {:ok, get_story_detail(id)}
     end
   end
 
-  defp get_story_detail do
+  defp get_story_detail(id) do
     %{
       "by" => "pg",
       "descendants" => 54,
-      "id" => 126_809,
+      "id" => id,
       "kids" => [126_822, 126_823],
       "parts" => [126_810, 126_811, 126_812],
       "score" => 47,

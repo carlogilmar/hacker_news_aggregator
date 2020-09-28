@@ -7,4 +7,8 @@ defmodule HackerNewsAggregatorTest.HackerNewsClient do
     assert length(top_50_ids) == 50
   end
 
+  test "Get item detail" do
+    story = HackerNewsClient.get_story_detail(1)
+    assert is_struct(story)
+  end
 end

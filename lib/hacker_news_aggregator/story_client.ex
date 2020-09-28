@@ -2,6 +2,7 @@ defmodule HackerNewsAggregator.StoryClient do
   @moduledoc "This module is a genserver to manage the Stories Top 50 data"
   use GenServer
   alias HackerNewsAggregator.HackerNewsClient
+  require Logger
 
   def start_link(state \\ []) do
     GenServer.start_link(__MODULE__, state, name: __MODULE__)
@@ -9,6 +10,8 @@ defmodule HackerNewsAggregator.StoryClient do
 
   @impl true
   def init(_opts) do
+    fetch_top_50()
+    execute_scheduler()
     {:ok, %{ids: [], stories: %{}}}
   end
 
@@ -66,5 +69,17 @@ defmodule HackerNewsAggregator.StoryClient do
     %{ids: ids, stories: stories} = HackerNewsClient.get_stories()
     state_updated = %{state | ids: ids, stories: stories}
     {:noreply, state_updated}
+  end
+
+  @impl true
+  def handle_info(:scheduler, state) do
+    Logger.debug("Fetching top 50")
+    fetch_top_50()
+    execute_scheduler()
+    {:noreply, state}
+  end
+
+  defp execute_scheduler do
+    Process.send_after(self(), :scheduler, 60_000)
   end
 end

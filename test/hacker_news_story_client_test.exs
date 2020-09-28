@@ -7,11 +7,12 @@ defmodule HackerNewsAggregatorTest do
     :ok
   end
 
-  test "Fetch story detail when the client isn't initialized" do
-    [1, "2", 0, "6534"]
-    |> Enum.into([], fn id -> StoryClient.get_story(id) end)
+  test "Fetch story detail when the client is already initialized" do
+    [24_591_953, 24_591_954, 24_591_955, 24_591_956]
+    |> Enum.into([], fn id -> StoryClient.get_story("#{id}") end)
     |> Enum.each(fn story ->
-      assert story == nil
+      assert !is_nil(story)
+      assert is_struct(story)
     end)
   end
 

@@ -3,11 +3,9 @@ defmodule HackerNewsAggregator.HttpClient do
 
   @spec get(String.t()) :: map()
   def get(api_endpoint) when is_binary(api_endpoint) do
-    with {:ok, response} <- HTTPoison.get(api_endpoint) do
-      Poison.decode(response.body)
-    else
-      {:error, error_response} ->
-        {:error, error_response.reason}
+    case HTTPoison.get(api_endpoint) do
+      {:ok, response} -> Poison.decode(response.body)
+      {:error, error_response} -> {:error, error_response.reason}
     end
   end
 end

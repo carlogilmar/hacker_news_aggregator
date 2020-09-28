@@ -21,4 +21,19 @@ defmodule HackerNewsAggregator.HackerNewsClient do
     {:ok, story_detail} = @http_client.get("#{@api_endpoint}/item/#{story_id}.json")
     Story.new(story_detail)
   end
+
+  @spec get_stories() :: list()
+  def get_stories do
+    ids = get_top_50_ids()
+
+    stories =
+      Map.new(
+        ids,
+        fn story_id ->
+          {"#{story_id}", get_story_detail(story_id)}
+        end
+      )
+
+    %{ids: ids, stories: stories}
+  end
 end

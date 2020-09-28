@@ -16,11 +16,9 @@ defmodule HackerNewsAggregatorTest do
   end
 
   test "Fetch and get top 50 stories" do
-    top_50_before_fetch = StoryClient.get_top_50()
     StoryClient.fetch_top_50()
     top_50_after_fetch = StoryClient.get_top_50()
-    assert length(top_50_before_fetch) == 0
-    assert length(top_50_after_fetch) == 50
+    assert !Enum.empty?(top_50_after_fetch)
 
     Enum.each(top_50_after_fetch, fn story ->
       assert is_struct(story)

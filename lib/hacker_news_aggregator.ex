@@ -5,6 +5,7 @@ defmodule HackerNewsAggregator do
     - Get a chunk of stories
   """
   alias HackerNewsAggregator.StoryClient
+  alias HackerNewsAggregator.Websocket
 
   @doc "Function to get a story by id"
   @spec get_story_by_id(String.t()) :: {200, struct()} | {404, map()}
@@ -21,6 +22,12 @@ defmodule HackerNewsAggregator do
     |> String.to_integer()
     |> StoryClient.get_stories()
     |> handle_response()
+  end
+
+  @doc "I implemented this function for isolate the core functionality from the web components"
+  @spec refresh_websockets(list()) :: :ok
+  def refresh_websockets(top_50) do
+    Websocket.send_broadcast(top_50)
   end
 
   defp handle_response(resource) do

@@ -1,10 +1,11 @@
 defmodule HackerNewsAggregator.HackerNewsClient do
   @moduledoc "This module is for fetch data from Hacker News Api"
   alias HackerNewsAggregator.Story
+
   @http_client Application.get_env(
                  :hacker_news_aggregator,
                  :http_client,
-                 HackerNewsAggregator.HttpClient
+                 HackerNewsAggregator.HttpPoisonClient
                )
 
   @spec get_top_50_ids() :: list()
@@ -35,7 +36,7 @@ defmodule HackerNewsAggregator.HackerNewsClient do
   end
 
   defp get_hacker_news_api do
-   Application.get_env(:hacker_news_aggregator, :api)
+    Application.get_env(:hacker_news_aggregator, :api)
   end
 
   defp get_hacker_news_top_50_endpoint do

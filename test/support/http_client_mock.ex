@@ -1,7 +1,8 @@
 defmodule HttpClientMock do
   @moduledoc "This module it's for support testing and provide mock responses"
+  @behaviour HackerNewsAggregator.Request
 
-  @spec get(String.t()) :: list()
+  @spec get(String.t()) :: {:ok, map()} | {:error, atom()}
   @doc "This function will provide fake data"
   def get(url) do
     case url do

@@ -27,7 +27,7 @@ defmodule HackerNewsAggregatorTest.EndpointTest do
     end
 
     test "Get a chunk of stories per pages allowed" do
-      Enum.each([1, 2, 3, 4, 5], fn page ->
+      Enum.each([0, 1, 2, 3, 4, 5], fn page ->
         conn = conn(:get, "/stories")
         conn = %{conn | host: "localhost:400/api/v1", query_params: %{"page" => "#{page}"}}
         conn = Router.call(conn, [])
@@ -36,7 +36,7 @@ defmodule HackerNewsAggregatorTest.EndpointTest do
     end
 
     test "Get a chunk of stories per pages not allowed" do
-      Enum.each([0, 6, 7, 10, 243, 12], fn page ->
+      Enum.each([6, 7, 10, 243, 12], fn page ->
         conn = conn(:get, "/stories")
         conn = %{conn | host: "localhost:400/api/v1", query_params: %{"page" => "#{page}"}}
         conn = Router.call(conn, [])

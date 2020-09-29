@@ -8,11 +8,17 @@ defmodule HackerNewsAggregator.HackerNewsClient do
                  HackerNewsAggregator.HttpPoisonClient
                )
 
-  @spec get_top_50_ids() :: list()
-  def get_top_50_ids do
+  @doc """
+    This function is for get the top stories ids from the HackerNews Endpoint
+    By default was set with off_set 0 and size 50 for get the first 50th elements
+  """
+  @spec get_top_ids() :: list()
+  def get_top_ids(off_set \\ 0, size \\ 50) do
     case @http_client.get(get_hacker_news_top_50_endpoint()) do
-      {:ok, top_ids} -> Enum.take(top_ids, 50)
-      _error -> []
+      {:ok, top_ids} ->
+        Enum.slice(top_ids, off_set, size)
+      _error ->
+        []
     end
   end
 
@@ -25,7 +31,7 @@ defmodule HackerNewsAggregator.HackerNewsClient do
 
   @spec get_stories() :: %{ids: list(), stories: map()}
   def get_stories do
-    ids = get_top_50_ids()
+    ids = get_top_ids()
 
     stories =
       Task.async_stream(ids, fn id -> get_story_detail(id) end)

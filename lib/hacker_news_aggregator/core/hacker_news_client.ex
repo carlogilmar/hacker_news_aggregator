@@ -39,9 +39,11 @@ defmodule HackerNewsAggregator.HackerNewsClient do
     ids = get_top_ids()
 
     stories =
-      Task.async_stream(ids, fn id -> get_story_detail(id) end)
-      |> Enum.to_list()
-      |> Map.new(fn {:ok, story} -> {"#{story.id}", story} end)
+      Task.async_stream(ids, fn id ->
+        story = get_story_detail(id)
+        {"#{story.id}", story}
+      end)
+      |> Enum.into(%{}, fn {:ok, story_kv} -> story_kv end)
 
     top_50 = Enum.into(ids, [], fn id -> stories["#{id}"] end)
 

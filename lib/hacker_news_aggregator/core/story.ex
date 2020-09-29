@@ -4,7 +4,16 @@ defmodule HackerNewsAggregator.Story do
 
   @spec new(map()) :: %__MODULE__{}
   def new(params) when is_map(params) do
-    story = Map.new(params, fn {k, v} -> {String.to_existing_atom(k), v} end)
-    struct(%__MODULE__{}, story)
+    %__MODULE__{
+      id: params["id"],
+      by: params["by"],
+      descendants: params["descendants"],
+      kids: params["kids"],
+      score: params["score"],
+      time: params["time"],
+      title: params["title"],
+      type: params["type"],
+      url: params["url"]
+    }
   end
 end

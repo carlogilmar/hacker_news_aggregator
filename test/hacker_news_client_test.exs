@@ -12,9 +12,14 @@ defmodule HackerNewsAggregatorTest.HackerNewsClientTest do
     assert is_struct(story)
   end
 
-  test "Get a map with the ids and the storie's detail" do
-    %{ids: ids, stories: stories} = HackerNewsClient.get_stories()
-    assert length(ids) == 50
+  test "Get a map with the top50 and the storie's detail" do
+    %{top_50: top_50, stories: stories} = HackerNewsClient.get_stories()
+
+    assert !Enum.empty?(top_50)
+
+    Enum.each(top_50, fn story ->
+      assert is_struct(story)
+    end)
 
     Enum.each(stories, fn {_k, v} ->
       assert is_struct(v)

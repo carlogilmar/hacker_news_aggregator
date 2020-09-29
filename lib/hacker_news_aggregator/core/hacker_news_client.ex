@@ -34,7 +34,7 @@ defmodule HackerNewsAggregator.HackerNewsClient do
     Story.new(story_detail)
   end
 
-  @spec get_stories() :: %{ids: list(), stories: map()}
+  @spec get_stories() :: %{top_50: list(), stories: map()}
   def get_stories do
     ids = get_top_ids()
 
@@ -43,7 +43,9 @@ defmodule HackerNewsAggregator.HackerNewsClient do
       |> Enum.to_list()
       |> Map.new(fn {:ok, story} -> {"#{story.id}", story} end)
 
-    %{ids: ids, stories: stories}
+    top_50 = Enum.into(ids, [], fn id -> stories["#{id}"] end)
+
+    %{top_50: top_50, stories: stories}
   end
 
   defp get_hacker_news_api do

@@ -28,7 +28,10 @@ defmodule HackerNewsAggregator.MixProject do
     [
       {:httpoison, "~> 1.6"},
       {:poison, "~> 3.1"},
-      {:credo, "~> 1.5.0-rc.2", only: [:dev, :test], runtime: false}
+      {:credo, "~> 1.5.0-rc.2", only: [:dev, :test], runtime: false},
+      {:plug, "~> 1.6"},
+      {:cowboy, "~> 2.4"},
+      {:plug_cowboy, "~> 2.0"}
     ]
   end
 end

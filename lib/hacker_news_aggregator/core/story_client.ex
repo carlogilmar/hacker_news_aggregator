@@ -19,8 +19,8 @@ defmodule HackerNewsAggregator.StoryClient do
   """
   @impl true
   def init(_opts) do
-    create_ets_tables()
     execute_scheduler()
+    create_ets_tables()
     fetch_top_50()
     {:ok, %{msg: :client_initialized}}
   end

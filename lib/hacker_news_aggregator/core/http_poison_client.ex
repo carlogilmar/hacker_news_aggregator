@@ -2,6 +2,7 @@ defmodule HackerNewsAggregator.HttpPoisonClient do
   @moduledoc "This module is for make Http requests and decode the response body"
   @behaviour HackerNewsAggregator.Request
 
+  @impl HackerNewsAggregator.Request
   @spec get(String.t()) :: {:ok, map()} | {:error, atom()}
   def get(api_endpoint) when is_binary(api_endpoint) do
     case HTTPoison.get(api_endpoint) do

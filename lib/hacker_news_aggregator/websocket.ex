@@ -1,4 +1,5 @@
 defmodule HackerNewsAggregator.Websocket do
+  @moduledoc "This module is for implement the websocket connection"
   @behaviour :cowboy_websocket
 
   @impl true
@@ -11,6 +12,7 @@ defmodule HackerNewsAggregator.Websocket do
   def websocket_init(state) do
     Registry.HackerNewsAggregator
     |> Registry.register(state.registry_key, {})
+
     {:ok, state}
   end
 
@@ -20,18 +22,18 @@ defmodule HackerNewsAggregator.Websocket do
   end
 
   @impl true
-  def websocket_handle({:text, message}, state) do
+  def websocket_handle({:text, _message}, state) do
     {:reply, {:text, "Heeey!"}, state}
   end
 
+  @spec send_broadcast(any()) :: any()
   def send_broadcast(message) do
     response_encoded = Poison.encode!(%{body: message})
 
-    Registry.dispatch(Registry.HackerNewsAggregator, "/ws/top50",
-      fn entries ->
-        Enum.each(entries, fn {pid, _} ->
-          Process.send(pid, response_encoded, [])
-        end)
+    Registry.dispatch(Registry.HackerNewsAggregator, "/ws/top50", fn entries ->
+      Enum.each(entries, fn {pid, _} ->
+        Process.send(pid, response_encoded, [])
       end)
+    end)
   end
 end

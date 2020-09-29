@@ -14,7 +14,8 @@ defmodule HackerNewsAggregator.Application do
       Plug.Cowboy.child_spec(
         scheme: :http,
         plug: HackerNewsAggregator.Router,
-        options: [dispatch: dispatch(), port: 4001]),
+        options: [dispatch: dispatch(), port: 4001]
+      ),
       Registry.child_spec(keys: :duplicate, name: Registry.HackerNewsAggregator)
     ]
 
@@ -27,12 +28,10 @@ defmodule HackerNewsAggregator.Application do
   defp dispatch do
     [
       {:_,
-        [
-          {"/ws/top50", HackerNewsAggregator.Websocket, []},
-          {:_, Plug.Cowboy.Handler, {HackerNewsAggregator.Router, []}}
-        ]
-      }
+       [
+         {"/ws/top50", HackerNewsAggregator.Websocket, []},
+         {:_, Plug.Cowboy.Handler, {HackerNewsAggregator.Router, []}}
+       ]}
     ]
   end
-
 end

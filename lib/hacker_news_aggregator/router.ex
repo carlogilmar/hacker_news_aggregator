@@ -4,6 +4,10 @@ defmodule HackerNewsAggregator.Router do
   plug(:match)
   plug(:dispatch)
 
+  get "/story" do
+    send_resp(conn, 404, "404")
+  end
+
   get "/story/:id" do
     ["story", story_id] = conn.path_info
     {status_code, response} = HackerNewsAggregator.get_story_by_id(story_id)
@@ -12,9 +16,20 @@ defmodule HackerNewsAggregator.Router do
   end
 
   get "/stories" do
-    %{"page" => page} = conn.query_params
+    page =
+      if conn.query_params == %{} do
+        "0"
+      else
+        %{"page" => page_number} = conn.query_params
+        page_number
+      end
+
     {status_code, response} = HackerNewsAggregator.get_stories(page)
     conn = %{conn | resp_headers: [{"content-type", "application/json"}]}
     send_resp(conn, status_code, Poison.encode!(response))
+  end
+
+  match _ do
+    send_resp(conn, 404, "404")
   end
 end

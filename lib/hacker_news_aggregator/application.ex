@@ -10,7 +10,12 @@ defmodule HackerNewsAggregator.Application do
       # Starts a worker by calling: HackerNewsAggregator.Worker.start_link(arg)
       # {HackerNewsAggregator.Worker, arg}
       HackerNewsAggregator.StoryClient,
-      HackerNewsAggregator.Endpoint
+      HackerNewsAggregator.Endpoint,
+      Plug.Cowboy.child_spec(
+        scheme: :http,
+        plug: HackerNewsAggregator.Router,
+        options: [dispatch: dispatch(), port: 4001]),
+      Registry.child_spec(keys: :duplicate, name: Registry.HackerNewsAggregator)
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
@@ -18,4 +23,16 @@ defmodule HackerNewsAggregator.Application do
     opts = [strategy: :one_for_one, name: HackerNewsAggregator.Supervisor]
     Supervisor.start_link(children, opts)
   end
+
+  defp dispatch do
+    [
+      {:_,
+        [
+          {"/ws/top50", HackerNewsAggregator.Websocket, []},
+          {:_, Plug.Cowboy.Handler, {HackerNewsAggregator.Router, []}}
+        ]
+      }
+    ]
+  end
+
 end

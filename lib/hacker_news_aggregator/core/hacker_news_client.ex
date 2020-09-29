@@ -14,12 +14,17 @@ defmodule HackerNewsAggregator.HackerNewsClient do
   """
   @spec get_top_ids() :: list()
   def get_top_ids(off_set \\ 0, size \\ 50) do
-    case @http_client.get(get_hacker_news_top_50_endpoint()) do
-      {:ok, top_ids} ->
-        Enum.slice(top_ids, off_set, size)
-      _error ->
-        []
-    end
+    get_hacker_news_top_50_endpoint()
+    |> @http_client.get()
+    |> handle_response(off_set, size)
+  end
+
+  defp handle_response({:ok, top_ids}, off_set, size) do
+    Enum.slice(top_ids, off_set, size)
+  end
+
+  defp handle_response({:error, _error}, _off_set, _size) do
+    []
   end
 
   @spec get_story_detail(integer()) :: %Story{}

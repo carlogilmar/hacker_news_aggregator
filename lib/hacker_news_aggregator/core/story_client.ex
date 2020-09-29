@@ -99,7 +99,7 @@ defmodule HackerNewsAggregator.StoryClient do
   end
 
   defp execute_scheduler do
-    Process.send_after(self(), :scheduler, 1_000)
+    Process.send_after(self(), :scheduler, 300_000)
   end
 
   defp create_ets_tables do

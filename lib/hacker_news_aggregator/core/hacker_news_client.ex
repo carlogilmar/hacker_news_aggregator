@@ -1,7 +1,6 @@
 defmodule HackerNewsAggregator.HackerNewsClient do
   @moduledoc "This module is for fetch data from Hacker News Api"
   alias HackerNewsAggregator.Story
-  @api_endpoint Application.get_env(:hacker_news_aggregator, :api)
   @http_client Application.get_env(
                  :hacker_news_aggregator,
                  :http_client,
@@ -10,7 +9,7 @@ defmodule HackerNewsAggregator.HackerNewsClient do
 
   @spec get_top_50_ids() :: list()
   def get_top_50_ids do
-    case @http_client.get("#{@api_endpoint}/topstories.json") do
+    case @http_client.get(get_hacker_news_top_50_endpoint()) do
       {:ok, top_ids} -> Enum.take(top_ids, 50)
       _error -> []
     end
@@ -18,7 +17,8 @@ defmodule HackerNewsAggregator.HackerNewsClient do
 
   @spec get_story_detail(integer()) :: %Story{}
   def get_story_detail(story_id) do
-    {:ok, story_detail} = @http_client.get("#{@api_endpoint}/item/#{story_id}.json")
+    endpoint = get_hacker_news_story_endpoint(story_id)
+    {:ok, story_detail} = @http_client.get(endpoint)
     Story.new(story_detail)
   end
 
@@ -32,5 +32,17 @@ defmodule HackerNewsAggregator.HackerNewsClient do
       |> Map.new(fn {:ok, story} -> {"#{story.id}", story} end)
 
     %{ids: ids, stories: stories}
+  end
+
+  defp get_hacker_news_api do
+   Application.get_env(:hacker_news_aggregator, :api)
+  end
+
+  defp get_hacker_news_top_50_endpoint do
+    "#{get_hacker_news_api()}" <> "/topstories.json"
+  end
+
+  defp get_hacker_news_story_endpoint(story_id) do
+    "#{get_hacker_news_api()}" <> "/item/#{story_id}.json"
   end
 end

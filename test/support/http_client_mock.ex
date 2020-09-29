@@ -10,7 +10,7 @@ defmodule HttpClientMock do
         {:ok, fake_ids}
 
       story_url_detail ->
-        <<url_path::8*43, story_id::binary>> = story_url_detail
+        <<_url_path::8*43, story_id::binary>> = story_url_detail
         [id, _] = String.split(story_id, ".json")
         {:ok, get_story_detail(id)}
     end

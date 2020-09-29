@@ -54,21 +54,20 @@ defmodule HackerNewsAggregator.StoryClient do
 
   @impl true
   def handle_call({:get_story, story_id}, _from, state) do
-    {_ids, stories} = lookup_top_50()
+    {_top_50, stories} = lookup_top_50()
     story = stories[story_id]
     {:reply, story, state}
   end
 
   @impl true
   def handle_call({:get_top_50}, _from, state) do
-    {ids, stories} = lookup_top_50()
-    top_50 = Enum.into(ids, [], fn id -> stories["#{id}"] end)
+    {top_50, _stories} = lookup_top_50()
     {:reply, top_50, state}
   end
 
   @impl true
   def handle_call({:get_stories, page}, _from, state) do
-    {ids, stories} = lookup_top_50()
+    {top_50, _stories} = lookup_top_50()
 
     index =
       case page do
@@ -77,46 +76,45 @@ defmodule HackerNewsAggregator.StoryClient do
         _other -> 50
       end
 
-    stories_chunk =
-      ids
-      |> Enum.slice(index, 10)
-      |> Enum.into([], fn id -> stories["#{id}"] end)
+    stories_chunk = Enum.slice(top_50, index, 10)
 
     {:reply, stories_chunk, state}
   end
 
   @impl true
   def handle_cast({:fetch_stories}, state) do
-    %{ids: ids, stories: stories} = HackerNewsClient.get_stories()
-    insert_top_50(ids, stories)
+    %{top_50: top_50, stories: stories} = HackerNewsClient.get_stories()
+    insert_top_50(top_50, stories)
     {:noreply, state}
   end
 
   @impl true
   def handle_info(:scheduler, state) do
-    Logger.debug("Fetching top 50")
+    Logger.debug("Fetching top 50 and refresh websockets")
     fetch_top_50()
+    {top_50, _stories} = lookup_top_50()
+    HackerNewsAggregator.refresh_websockets(top_50)
     execute_scheduler()
     {:noreply, state}
   end
 
   defp execute_scheduler do
-    Process.send_after(self(), :scheduler, 60_000)
+    Process.send_after(self(), :scheduler, 1_000)
   end
 
   defp create_ets_tables do
-    :ets.new(:top_50_ids, [:set, :private, :named_table])
+    :ets.new(:top_50, [:set, :private, :named_table])
     :ets.new(:stories, [:set, :private, :named_table])
   end
 
-  defp insert_top_50(ids, stories) do
-    :ets.insert(:top_50_ids, {@ets_key, ids})
+  defp insert_top_50(top_50, stories) do
+    :ets.insert(:top_50, {@ets_key, top_50})
     :ets.insert(:stories, {@ets_key, stories})
   end
 
   defp lookup_top_50 do
-    [{@ets_key, ids}] = :ets.lookup(:top_50_ids, @ets_key)
     [{@ets_key, stories}] = :ets.lookup(:stories, @ets_key)
-    {ids, stories}
+    [{@ets_key, top_50}] = :ets.lookup(:top_50, @ets_key)
+    {top_50, stories}
   end
 end
